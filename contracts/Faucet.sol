@@ -9,13 +9,19 @@ contract Faucet {
   
   function withdraw(uint _amount) public {
     // users can only withdraw every 12 hours
-    require(withdrawals[msg.sender] + HALF_DAY <= block.timestamp, "Withdrawal limit reached");
+    if (checkUser(msg.sender)) {
+      require(withdrawals[msg.sender] + HALF_DAY <= block.timestamp, "Withdrawal limit reached");
+    }
 
     // users can only withdraw .5 ETH at a time, feel free to change this!
     require(_amount <= 500000000000000000);
     
     payable(msg.sender).transfer(_amount);
     withdrawals[msg.sender] = block.timestamp;
+  }
+
+  function checkUser(address user_add) internal view returns (bool) {
+    return abi.encodePacked(withdrawals[user_add]).length > 0 ? true : false;
   }
 
   // fallback function
